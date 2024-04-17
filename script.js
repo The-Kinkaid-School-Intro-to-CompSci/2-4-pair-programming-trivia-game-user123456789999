@@ -205,6 +205,7 @@ function handleQuestionSubmit(event){
     let answers = document.querySelectorAll(`input[name="${questionID}"]`);
     //answers is a NodeList, convert it to an array
     answers = Array.from(answers);
+    console.log(answers);
 
     let selectedAnswer = null;
     let correctAnswer = null;
@@ -246,19 +247,29 @@ function createQuestionCard(question){
     //Step 6
     //Step 3A: Create the header of the card
     console.log(question);
+    
     //create a header (div element) with class card-header
-
+    let header = document.createElement('div');
+    header.classList.add("card-header");
+    
     //create an title (h5 element) with the class card-title
+    let title = document.createElement('h5');
+    title.classList.add("card-title");
+    title.textContent = question.question;
     //the title should say the question
 
 
     //create a subtitle (p element) with the class card-subtitle
     //the subtitle should say the category of the question
-
+    let subtitle = document.createElement('p');
+    subtitle.classList.add("card-subtitle");
+    subtitle.textContent= question.category;
 
     //append the cardTitle and subtitle to the cardHeader
-
+    header.appendChild(title);
+    header.appendChild(subtitle);
     //append the cardHeader to the questionCard
+    questionCard.appendChild(header);
 
     /*********** HEADER END ************* */
 
@@ -279,7 +290,11 @@ function createQuestionCard(question){
 
     //Part 3B: 
     //for each incorrect answer, make an input with type radio and class form-check input, call the function createFormCheckInput
-    
+    for (let incorrect in question.incorrect_answers){
+        let wrongAnswer = createFormCheckInput(incorrect, false, question.incorrect_answers[incorrect]);
+        
+        cardBody.appendChild(wrongAnswer);
+    }
 
     //append the cardBody to the form
     form.appendChild(cardBody);
@@ -327,10 +342,18 @@ function createQuestionCard(question){
  */
 async function getQuestions(){
     console.log("Fetching questions from the API");
-    const baseURL = 'https://opentdb.com/api.php?amount=1';
+    const baseURL = 'https://opentdb.com/api.php?';
+    const numberOfQuestionsInput = document.querySelector('#numberOfQuestions');
+    let numberOfQuestions = numberOfQuestionsInput.value;
+    let numQuestionsString = `amount=${numberOfQuestions}`;
     
+    const categorySelect = document.querySelector('#categorySelect');
+    let category = categorySelect.value;
+    let categoryString = `&category=${category}`
     //Step 1: get the user input (number of questions to get)
     //get the number of questions to fetch from the user input
+    totalQuestions= numberOfQuestions;
+
 
     //update the totalQuestions variable
 
@@ -338,7 +361,7 @@ async function getQuestions(){
 
 
     //build the full URL
-    const fullURL = `${baseURL}`;
+    const fullURL = `${baseURL}${numQuestionsString}${categoryString}`;
     console.log("Full URL: ", fullURL);
     //make the fetch request
     const response = await fetch(fullURL);
